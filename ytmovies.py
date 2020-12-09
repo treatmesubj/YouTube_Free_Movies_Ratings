@@ -58,7 +58,7 @@ def get_Pluto_movies():
 
 if __name__ == "__main__":
 	# movies = set(get_YT_free_movies() + get_Pluto_movies())
-	
+
 	movies = get_YT_free_movies()
 
 	movie_ratings = tuple()
@@ -66,12 +66,14 @@ if __name__ == "__main__":
 	for movie in movies:
 		response = requests.get(f"https://www.rottentomatoes.com/search?search={movie}")
 		soup = BeautifulSoup(response.text, 'html.parser')
-		sanjay = json.loads(soup.select_one("script#movies-json").string)
-		if sanjay and sanjay['count'] > 0:
-			movie_rating = ((movie, int(sanjay['items'][0]['tomatometerScore'].get('score') or 0), int(sanjay['items'][0]['audienceScore'].get('score') or 0)),)
-			movie_ratings += movie_rating
-			
-			print(f"{movie_rating[0][0][:25], movie_rating[0][1], movie_rating[0][2]}".ljust(50, '#'), len(movie_ratings), end="\r")
+		jaysean = soup.select_one("script#movies-json")
+		if jaysean:
+			sanjay = json.loads(jaysean.string)
+			if sanjay and sanjay['count'] > 0:
+				movie_rating = ((movie, int(sanjay['items'][0]['tomatometerScore'].get('score') or 0), int(sanjay['items'][0]['audienceScore'].get('score') or 0)),)
+				movie_ratings += movie_rating
+				
+				print(f"{movie_rating[0][0][:25], movie_rating[0][1], movie_rating[0][2]}".ljust(50, '#'), len(movie_ratings), end="\r")
 
 	movie_ratings = sorted(movie_ratings, key=lambda x: 0 if not x[1] else x[1], reverse=True)
 	print('#'*50)

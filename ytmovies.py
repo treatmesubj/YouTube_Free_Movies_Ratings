@@ -56,24 +56,41 @@ def get_Pluto_movies():
 	return movies
 
 
+def get_movie_ratings(movie_name):
+	"""
+	fetches critic & audience scores via movie name
+	"""
+	response = requests.get(f"https://www.rottentomatoes.com/search?search={movie_name}")
+	soup = BeautifulSoup(response.text, 'html.parser')
+	sanjay = json.loads(soup.select_one("script#movies-json").string)
+	if sanjay and sanjay['count'] > 0:
+		movie_ratings = ((movie_name, int(sanjay['items'][0]['tomatometerScore'].get('score') or 0), int(sanjay['items'][0]['audienceScore'].get('score') or 0)),)
+
+	return movie_ratings
+
+
+def get_movies_ratings(movies_list, show_progress=False):
+	"""
+	fetches critic & audience scores for list of movie names
+	"""
+	movies_ratings = tuple()
+	for movie in movies_list:
+		movie_rating = get_movie_ratings(movie)
+		movies_ratings += movie_rating
+		if show_progress:
+			print(f"{movie_rating[0][0][:25], movie_rating[0][1], movie_rating[0][2]}".ljust(50, '#'), len(movies_ratings), end="\r")
+
+	return movies_ratings
+
+
 if __name__ == "__main__":
 	# movies = set(get_YT_free_movies() + get_Pluto_movies())
 
 	movies = get_YT_free_movies()
 
-	movie_ratings = tuple()
+	movies_ratings = get_movies_ratings(movies, show_progress=True)
 
-	for movie in movies:
-		response = requests.get(f"https://www.rottentomatoes.com/search?search={movie}")
-		soup = BeautifulSoup(response.text, 'html.parser')
-		sanjay = json.loads(soup.select_one("script#movies-json").string)
-		if sanjay and sanjay['count'] > 0:
-			movie_rating = ((movie, int(sanjay['items'][0]['tomatometerScore'].get('score') or 0), int(sanjay['items'][0]['audienceScore'].get('score') or 0)),)
-			movie_ratings += movie_rating
-			
-			print(f"{movie_rating[0][0][:25], movie_rating[0][1], movie_rating[0][2]}".ljust(50, '#'), len(movie_ratings), end="\r")
-
-	movie_ratings = sorted(movie_ratings, key=lambda x: 0 if not x[1] else x[1], reverse=True)
+	movies_ratings = sorted(movies_ratings, key=lambda x: 0 if not x[1] else x[1], reverse=True)
 	print('#'*50)
-	for movie in movie_ratings:
+	for movie in movies_ratings:
 		print(movie)

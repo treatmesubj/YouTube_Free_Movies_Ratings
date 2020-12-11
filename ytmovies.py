@@ -44,7 +44,7 @@ def get_YT_free_movies():
 
 def get_Pluto_movies():
 	"""
-	HTTP fetches Pluto movies and parses JSON to return tuple of movies
+	HTTP fetches Pluto movies and parses JSON to return tuple of movie names
 	"""
 	movies = tuple()
 	response = requests.get("https://service-vod.clusters.pluto.tv/v3/vod/categories?includeItems=true&includeCategoryFields=imageFeatured%2CiconPng&itemOffset=10000&advertisingId=&appName=web&appVersion=5.11.1-2a66a4913105edf0ba49fadd1a6875693b09e78c&app_name=web&clientDeviceType=0&deviceDNT=false&deviceMake=Firefox&deviceModel=&deviceType=web&deviceVersion=83.0&marketingRegion=US&serverSideAds=false&userId=&attributeV4=foo")
@@ -58,7 +58,7 @@ def get_Pluto_movies():
 
 def get_movie_ratings(movie_name):
 	"""
-	fetches critic & audience scores via movie name
+	pass movie name to return (movie-name, critic-score, audience-score)
 	"""
 	response = requests.get(f"https://www.rottentomatoes.com/search?search={movie_name}")
 	soup = BeautifulSoup(response.text, 'html.parser')
@@ -71,7 +71,7 @@ def get_movie_ratings(movie_name):
 
 def get_movies_ratings(movies_list, show_progress=False):
 	"""
-	fetches critic & audience scores for list of movie names
+	pass list of movie names to return list of respective (movie-name, critic-score, audience-score)
 	"""
 	movies_ratings = tuple()
 	for movie in movies_list:

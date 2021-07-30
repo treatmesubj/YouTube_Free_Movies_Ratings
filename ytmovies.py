@@ -65,20 +65,20 @@ def get_movie_ratings(movie_name):
 	sanjay = json.loads(soup.select_one("script#movies-json").string)
 	if sanjay and sanjay['count'] > 0:
 		movie_ratings = ((movie_name, int(sanjay['items'][0]['tomatometerScore'].get('score') or 0), int(sanjay['items'][0]['audienceScore'].get('score') or 0)),)
+		return movie_ratings
 
-	return movie_ratings
 
-
-def get_movies_ratings(movies_list, show_progress=False):
+def get_movies_ratings(movies_list, show_progress=False, prog_carriage_return='\r'):
 	"""
 	pass list of movie names to return list of respective (movie-name, critic-score, audience-score)
 	"""
 	movies_ratings = tuple()
 	for movie in movies_list:
 		movie_rating = get_movie_ratings(movie)
-		movies_ratings += movie_rating
-		if show_progress:
-			print(f"{movie_rating[0][0][:25], movie_rating[0][1], movie_rating[0][2]}".ljust(50, '#'), len(movies_ratings), end="\r")
+		if movie_rating is not None:
+			movies_ratings += movie_rating
+			if show_progress:
+				print(f"{movie_rating[0][0][:25], movie_rating[0][1], movie_rating[0][2]}".ljust(50, '#'), len(movies_ratings), end=prog_carriage_return)
 
 	return movies_ratings
 
@@ -88,7 +88,7 @@ if __name__ == "__main__":
 
 	movies = get_YT_free_movies()
 
-	movies_ratings = get_movies_ratings(movies, show_progress=True)
+	movies_ratings = get_movies_ratings(movies, show_progress=True, prog_carriage_return='\n')
 
 	movies_ratings = sorted(movies_ratings, key=lambda x: 0 if not x[1] else x[1], reverse=True)
 	print('#'*50)
